@@ -10,14 +10,18 @@
 #include <string>		//string
 #include <iostream>
 #include <fstream>
-using namespace std;
+
+#include <boost/numeric/ublas/matrix.hpp>
+#include <boost/numeric/ublas/io.hpp>
+
+using namespace boost::numeric::ublas;
 
 class Soldier {
 	private:
-		void recMove(int** posMove, int movesLeft, const int X, const int Y);
-	
+		void recMove(matrix<int> posMove, int movesLeft, const int X, const int Y);
+
 	public:
-		string name;
+		std::string name;
         int sIndex;
 		int type;
 		int health;
@@ -25,13 +29,14 @@ class Soldier {
 		int range;
 		int speed;
 		int population;
-		int position[2];
+		int positionX;
+		int positionY;
 		int retreatSpeed;
 		int vision;
 		bool dead;
-		
+
 		Soldier();
 		void initSoldier(const int unitType, const int posX, const int posY, const int index);
-		bool move(const int* attPos, Soldier* allUnits, const int numUnits, const int fSizeX, const int fSizeY);
+		bool moveUnit(const int attPosX, const int attPosY, Soldier* allUnits, const int numUnits, const int fSizeX, const int fSizeY);
 		void defend(const int attacker, Soldier* unitField, const int numUnits, const int fSizeX, const int fSizeY);
 };

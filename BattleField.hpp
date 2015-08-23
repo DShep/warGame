@@ -7,22 +7,23 @@
  *
  */
 
-#include "Soldier.h"
+#include "Soldier.hpp"
 
 class BattleField {
 private:
-	void makeBlankField(const int fSizeX, const int fSizeY);
+	void setDefaultValues();
+	void setCurrentValues(Soldier* units,const int numUnits);
+	void resizeBattleField();
 public:
-	int** sIndex;
-	int** sType;
-	int** occupied;
-	int** sHealth;
-	int** terrain;
+    matrix<int> sIndex;
+    matrix<int> sType;
+    matrix<bool> occupied;
+    matrix<int> sHealth;
+    matrix<int> terrain;
 	int sizeX;
 	int sizeY;
-	
+
 	BattleField(const int fSizeX, const int fSizeY);
-	~BattleField();
 	void printField(const int whichField);
 	void updateField(Soldier* unit, const int numUnits);
 };
