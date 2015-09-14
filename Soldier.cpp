@@ -46,7 +46,7 @@ void Soldier::initSoldier(const int unitType, const int posX, const int posY, co
 
 }
 
-bool Soldier::moveUnit(const vector<vector<Soldier>> units, const int fSizeX, const int fSizeY) {
+bool Soldier::moveUnit(const vector< vector< Soldier > > unit, const int fSizeX, const int fSizeY) {
     // make a matrix to hold the places the unit can move
     // 0 is a place you can't move
     // 1 is a place you can move
@@ -62,17 +62,19 @@ bool Soldier::moveUnit(const vector<vector<Soldier>> units, const int fSizeX, co
 	}
 
     // get rid of all squares where another unit is
-    for(int pp=0; uu<units.; uu++) {
-        for(int uu=0; uu<numUnits; uu++) {
+    for(int pp=0; uu<unit.; uu++) {
+        for(int uu=0; uu<numunit; uu++) {
             if (uu != sIndex)
                 if unitPositions(yy,xx) > 0
-                    possibleMoves(units[uu].positionY,units[uu].positionX) = 0;
+                    possibleMoves(unit[uu].positionY,unit[uu].positionX) = 0;
         }
     }
 
-    // test every possible path through unnoccupied (possibleMoves = 2) squares
-    recMove(possibleMoves,currentSpeed,positionX,positionY);
+    // test every possible path through unoccupied (possibleMoves = 2) squares
+    recMove(possibleMoves,speed,positionX,positionY);
 
+    // set up two variables to keep track of whether we can move
+    // and whether we chose to move
 	bool canMove = false;
 	bool didMove = false;
 
@@ -84,6 +86,7 @@ bool Soldier::moveUnit(const vector<vector<Soldier>> units, const int fSizeX, co
 		}
 	}
 
+    // current interface with the user for deciding where to move
 	if (canMove) {
 		int moveX;
 		int moveY;
@@ -98,9 +101,9 @@ bool Soldier::moveUnit(const vector<vector<Soldier>> units, const int fSizeX, co
         cout << endl;
 
 		cout << "where do you want to move X?" << endl;
-		cin >> moveX;
+		std:cin >> moveX;
 		cout << "where do you want to move Y?" << endl;
-		cin >> moveY;
+		std:cin >> moveY;
 
 		if (possibleMoves(moveY,moveX) == 1) {
 			positionY = moveY;
@@ -141,19 +144,19 @@ bool Soldier::retreatUnit(matrix<int> unitPositions,bool retreat) {
 	}
 
     // get rid of all squares where another unit is
-    for(int uu=0; uu<numUnits; uu++) {
+    for(int uu=0; uu<numunit; uu++) {
         if (uu != sIndex)
             if unitPositions(yy,xx) > 0
-                possibleMoves(units[uu].positionY,units[uu].positionX) = 0;
+                possibleMoves(unit[uu].positionY,unit[uu].positionX) = 0;
     }
 
 	if(retreat)
     {
         // get rid of all unavaible squares for retreating this means anything next to a melee unit
-        for(int uu=0; uu<numUnits; uu++) {
-            if((uu != sIndex) && (units[uu].type != 5)) {
-                for(int reachX=units[uu].positionX-1; reachX<units[uu].positionX+2; reachX++) {
-                    for(int reachY=units[uu].positionY-1; reachY<units[uu].positionY+2; reachY++) {
+        for(int uu=0; uu<numunit; uu++) {
+            if((uu != sIndex) && (unit[uu].type != 5)) {
+                for(int reachX=unit[uu].positionX-1; reachX<unit[uu].positionX+2; reachX++) {
+                    for(int reachY=unit[uu].positionY-1; reachY<unit[uu].positionY+2; reachY++) {
                         if ((reachX > -1) && (reachX < fSizeX+1)) {
                             if ((reachY > -1) && (reachY < fSizeY+1)) {
                                 // 0 stands for unavailable
@@ -168,7 +171,7 @@ bool Soldier::retreatUnit(matrix<int> unitPositions,bool retreat) {
 
     }
 
-    // test every possible path through unnoccupied (possibleMoves = 2) squares
+    // test every possible path through unoccupied (possibleMoves = 2) squares
     recMove(possibleMoves,currentSpeed,positionX,positionY);
 
 	bool canMove = false;
@@ -196,9 +199,9 @@ bool Soldier::retreatUnit(matrix<int> unitPositions,bool retreat) {
         cout << endl;
 
 		cout << "where do you want to move X?" << endl;
-		cin >> moveX;
+		std:cin >> moveX;
 		cout << "where do you want to move Y?" << endl;
-		cin >> moveY;
+		std:cin >> moveY;
 
 		if (possibleMoves(moveY,moveX) == 1) {
 			positionY = moveY;
@@ -213,7 +216,7 @@ bool Soldier::retreatUnit(matrix<int> unitPositions,bool retreat) {
 	return didMove;
 }
 
-void Soldier::recMove(matrix<int> posMove, int movesLeft, const int X, const int Y) {
+void Soldier::recMove(matrix<int> & posMove, int movesLeft, const int X, const int Y) {
     for (int xx=X-1; xx<X+2; xx++) {
         for (int yy=Y-1; yy<Y+2; yy++) {
             if (movesLeft > 0) {
@@ -228,13 +231,13 @@ void Soldier::recMove(matrix<int> posMove, int movesLeft, const int X, const int
     }
 }
 
-void Soldier::defend(const int attacker,Soldier* units, const int numUnits, const int fSizeX, const int fSizeY) {
-	bool ret = moveUnit(units[attacker].positionX,units[attacker].positionY,units,numUnits,fSizeX,fSizeY);
+void Soldier::defend(const int attacker,Soldier* unit, const int numunit, const int fSizeX, const int fSizeY) {
+	bool ret = moveUnit(unit[attacker].positionX,unit[attacker].positionY,unit,numunit,fSizeX,fSizeY);
 
 	if (ret) {
-		health -= int (units[attacker].damage/2);
+		health -= int (unit[attacker].damage/2);
 	} else {
-		health -= units[attacker].damage;
+		health -= unit[attacker].damage;
 	}
 
 	if (health < 1)

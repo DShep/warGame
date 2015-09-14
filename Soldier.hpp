@@ -37,6 +37,6 @@ class Soldier {
 
 		Soldier();
 		void initSoldier(const int unitType, const int posX, const int posY, const int index);
-		bool moveUnit(const int attPosX, const int attPosY, Soldier* allUnits, const int numUnits, const int fSizeX, const int fSizeY);
-		void defend(const int attacker, Soldier* unitField, const int numUnits, const int fSizeX, const int fSizeY);
+		bool moveUnit(const int attPosX, const int attPosY, Soldier* allunit, const int numunit, const int fSizeX, const int fSizeY);
+		void defend(const int attacker, Soldier* unitField, const int numunit, const int fSizeX, const int fSizeY);
 };

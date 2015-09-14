@@ -26,8 +26,7 @@ BattleField::BattleField(const int fSizeX, const int fSizeY) {
     setDefaultValues();
 }
 
-void BattleField::updateField(Soldier* unit, const int numUnits) {
-
+void BattleField::updateField(vector< vector< Soldier > > & unit) {
     // distance from any unit to render the field
     int fieldCreateDistance = 10;
 
@@ -47,18 +46,20 @@ void BattleField::updateField(Soldier* unit, const int numUnits) {
     // first find the min and max values of Soldier X and Y positions
     // then make a battlefield that is large enough so that every soldier
     // is fieldCreateDistance from edges
-    for(int ss = 0; ss < numUnits; ss++) {
-        if (unit[ss].positionX < minX)
-            minX = unit[ss].positionX;
+    for(int pp = 0; pp<unit.size; pp++) {
+        for(int uu = 0; uu<unit[pp].size; uu++) {
+            if (unit[pp][uu].positionX < minX)
+                minX = unit[pp][uu].positionX;
 
-        if (unit[ss].positionX > maxX)
-            maxX = unit[ss].positionX;
+            if (unit[pp][uu].positionX > maxX)
+                maxX = unit[pp][uu].positionX;
 
-        if (unit[ss].positionY < minY)
-            minY = unit[ss].positionY;
+            if (unit[pp][uu].positionY < minY)
+                minY = unit[pp][uu].positionY;
 
-        if (unit[ss].positionY > maxY)
-            maxY = unit[ss].positionY;
+            if (unit[pp][uu].positionY > maxY)
+                maxY = unit[pp][uu].positionY;
+        }
     }
 
     // find the max and min shift amounts
@@ -77,9 +78,11 @@ void BattleField::updateField(Soldier* unit, const int numUnits) {
 
     // now that we have the shift amounts update the soldier
     // locations relative to the edges
-    for(int ss=0; ss<numUnits; ss++) {
-        unit[ss].positionX += minShiftX;
-        unit[ss].positionY += minShiftY;
+    for(int pp = 0; pp<unit.size; pp++) {
+        for(int uu=0; uu<unit[pp].size; uu++) {
+            unit[pp][uu].positionX += minShiftX;
+            unit[pp][uu].positionY += minShiftY;
+        }
     }
 
     // update the battlefield size
@@ -92,7 +95,7 @@ void BattleField::updateField(Soldier* unit, const int numUnits) {
     resizeBattleField();
 
     // set the field current state
-    setCurrentValues(unit,numUnits);
+    setCurrentValues(unit,numUnit);
 
 	return;
 }
@@ -119,7 +122,7 @@ void BattleField::setDefaultValues() {
 	}
 }
 
-void BattleField::setCurrentValues(Soldier* unit,const int numUnits) {\
+void BattleField::setCurrentValues(const vector< vector< Soldier > > unit,const int numUnit) {\
     // call setDefaultValues first to make sure all data
     // is in default position
     setDefaultValues();
@@ -129,18 +132,20 @@ void BattleField::setCurrentValues(Soldier* unit,const int numUnits) {\
     int unitX;
     int unitY;
 
-	for(int ss=0; ss<numUnits; ss++) {
-		if (!unit[ss].dead) {
-            unitX = unit[ss].positionX;
-            unitY = unit[ss].positionY;
+    for(int pp = 0; pp<unit.size; pp++) {
+        for(int uu = 0; uu<unit[pp].size; uu++) {
+            if (!unit[pp][uu].dead) {
+                unitX = unit[pp][uu].positionX;
+                unitY = unit[pp][uu].positionY;
 
-			sIndex(unitY,unitX) = ss;
-			sType(unitY,unitX) = unit[ss].type;
-			occupied(unitY,unitX) = true;
-			sHealth(unitY,unitX) = unit[ss].health;
-			terrain(unitY,unitX) = 0;
-		}
-	}
+                sIndex(unitY,unitX) = uu;
+                sType(unitY,unitX) = unit[pp][uu].type;
+                occupied(unitY,unitX) = true;
+                sHealth(unitY,unitX) = unit[pp][uu].health;
+                terrain(unitY,unitX) = 0;
+            }
+        }
+    }
 }
 
 void BattleField::printField(const int whichField) {

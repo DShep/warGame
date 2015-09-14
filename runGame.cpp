@@ -21,7 +21,7 @@ int main() {
 
     // resize the second dimension of this vector for every unit
     // in each player's army
-    // each player can have a different number of units
+    // each player can have a different number of unit
     // which is why its a 2d vector and not a matrix
     for(int pp=0; pp<numPlayer; pp++) {
         unit[pp].resize(numUnit);
@@ -44,7 +44,7 @@ int main() {
         }
 	}
 
-	// update the battlefield to show the current locations of units
+	// update the battlefield to show the current locations of unit
 	bField.updateField(&unit);
 
 	// display the field to the user

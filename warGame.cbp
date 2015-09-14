@@ -38,9 +38,9 @@
 			<Add directory="C:/boost_1_59_0" />
 		</Compiler>
 		<Unit filename="BattleField.cpp" />
-		<Unit filename="BattleField.h" />
+		<Unit filename="BattleField.hpp" />
 		<Unit filename="Soldier.cpp" />
-		<Unit filename="Soldier.h" />
+		<Unit filename="Soldier.hpp" />
 		<Unit filename="runGame.cpp" />
 		<Extensions>
 			<code_completion />

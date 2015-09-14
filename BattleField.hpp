@@ -12,7 +12,7 @@
 class BattleField {
 private:
 	void setDefaultValues();
-	void setCurrentValues(Soldier* units,const int numUnits);
+	void setCurrentValues(Soldier* unit,const int numunit);
 	void resizeBattleField();
 public:
     matrix<int> sIndex;
@@ -25,5 +25,5 @@ public:
 
 	BattleField(const int fSizeX, const int fSizeY);
 	void printField(const int whichField);
-	void updateField(Soldier* unit, const int numUnits);
+	void updateField(Soldier* unit, const int numunit);
 };
