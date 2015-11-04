@@ -8,11 +8,12 @@
  */
 
 #include "Soldier.hpp"
+#include <SFML/Graphics.hpp>
 
 class BattleField {
 private:
 	void setDefaultValues();
-	void setCurrentValues(Soldier* unit,const int numunit);
+	void setCurrentValues(const vector< vector< Soldier > > unit);
 	void resizeBattleField();
 public:
     matrix<int> sIndex;
@@ -25,5 +26,5 @@ public:
 
 	BattleField(const int fSizeX, const int fSizeY);
 	void printField(const int whichField);
-	void updateField(Soldier* unit, const int numunit);
+	void updateField(vector< vector< Soldier > > & unit);
 };

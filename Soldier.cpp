@@ -9,17 +9,13 @@
 
 #include "Soldier.hpp"
 
-Soldier::Soldier(){
-
-}
-
-void Soldier::initSoldier(const int unitType, const int posX, const int posY, const int sIndexIn){
+void Soldier::Soldier(const int unitType, const int posX, const int posY, const int sIndexIn){
 	const int numUnitTypes = 8;
 	const int numStats = 8;
 	// Load in the stats file for each type of soldier
-	ifstream statFile;
-	statFile.open("C:/Documents/Matt/cppPrograms/warGame/unitVals.csv",ios::in);
-	string stats[numStats+1][numUnitTypes+1];
+	std::ifstream statFile;
+	statFile.open("unitVals.csv",std::ios::in);
+	std::string stats[numStats+1][numUnitTypes+1];
 
 	for (int jj=0;jj<numStats+1;jj++) {
 		for (int ii=0;ii<numUnitTypes+1;ii++) {
@@ -44,8 +40,27 @@ void Soldier::initSoldier(const int unitType, const int posX, const int posY, co
 	positionX = posX;
 	positionY = posY;
 
+    // load a texture for the unit
+    vector< string > unitTexturePaths(5);
+    unitTexturePaths[0] = "textures\\units\\footmanTexture.png";
+    unitTexturePaths[1] = "textures\\units\\pikemanTexture.png";
+    unitTexturePaths[2] = "textures\\units\\lightCalveryTexture.png";
+    unitTexturePaths[3] = "textures\\units\\heavyCalveryTexture.png";
+    unitTexturePaths[4] = "textures\\units\\archerTexture.png";
+
+    sf::Texture unitTexture;
+
+    if (!unitTexture.loadFromFile(unitTexturePaths[unitType])) {
+        std::cerr << "unit texture not properly loaded" << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    // create a sprite for the unit
+    sf::Sprite unitSprite;
+    unitSprite.setTexture(unitTexture);
 }
 
+/*
 bool Soldier::moveUnit(const vector< vector< Soldier > > unit, const int fSizeX, const int fSizeY) {
     // make a matrix to hold the places the unit can move
     // 0 is a place you can't move
@@ -62,11 +77,10 @@ bool Soldier::moveUnit(const vector< vector< Soldier > > unit, const int fSizeX,
 	}
 
     // get rid of all squares where another unit is
-    for(int pp=0; uu<unit.; uu++) {
-        for(int uu=0; uu<numunit; uu++) {
+    for(int pp=0; pp<unit.size(); pp++) {
+        for(int uu=0; uu<unit[pp].size(); uu++) {
             if (uu != sIndex)
-                if unitPositions(yy,xx) > 0
-                    possibleMoves(unit[uu].positionY,unit[uu].positionX) = 0;
+                possibleMoves(unit[pp][uu].positionY,unit[pp][uu].positionX) = 0;
         }
     }
 
@@ -88,35 +102,12 @@ bool Soldier::moveUnit(const vector< vector< Soldier > > unit, const int fSizeX,
 
     // current interface with the user for deciding where to move
 	if (canMove) {
-		int moveX;
-		int moveY;
-
-		for(int jj = 0; jj < fSizeY; jj++) {
-            for(int ii = 0; ii < fSizeX; ii++) {
-                cout << possibleMoves(jj,ii);
-                cout << " ";
-            }
-            cout << endl;
-        }
-        cout << endl;
-
-		cout << "where do you want to move X?" << endl;
-		std:cin >> moveX;
-		cout << "where do you want to move Y?" << endl;
-		std:cin >> moveY;
-
-		if (possibleMoves(moveY,moveX) == 1) {
-			positionY = moveY;
-			positionX = moveX;
-			didMove = true;
-			cout << "successful move" << endl;
-		} else {
-            cout << "bad entry no move for you" << endl;
-		}
 	}
 
 	return didMove;
 }
+
+
 
 bool Soldier::retreatUnit(matrix<int> unitPositions,bool retreat) {
     // this whole function needs to be reworked
@@ -231,6 +222,12 @@ void Soldier::recMove(matrix<int> & posMove, int movesLeft, const int X, const i
     }
 }
 
+void Solider::attack() {
+    // identify positions that are within range
+    targets =
+
+}
+
 void Soldier::defend(const int attacker,Soldier* unit, const int numunit, const int fSizeX, const int fSizeY) {
 	bool ret = moveUnit(unit[attacker].positionX,unit[attacker].positionY,unit,numunit,fSizeX,fSizeY);
 
@@ -244,4 +241,5 @@ void Soldier::defend(const int attacker,Soldier* unit, const int numunit, const 
 		dead = true;
 
 	return;
-}
+
+}*/

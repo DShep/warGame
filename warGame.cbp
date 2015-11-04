@@ -36,7 +36,14 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 			<Add directory="C:/boost_1_59_0" />
+			<Add directory="C:/Program Files (x86)/CodeBlocks/sfml/include" />
 		</Compiler>
+		<Linker>
+			<Add library="sfml-graphics" />
+			<Add library="sfml-window" />
+			<Add library="sfml-system" />
+			<Add directory="C:/Program Files (x86)/CodeBlocks/sfml/lib" />
+		</Linker>
 		<Unit filename="BattleField.cpp" />
 		<Unit filename="BattleField.hpp" />
 		<Unit filename="Soldier.cpp" />

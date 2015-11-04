@@ -15,21 +15,54 @@ BattleField::BattleField(const int fSizeX, const int fSizeY) {
 	sizeX = fSizeX;
 	sizeY = fSizeY;
 
-    // each of these matricies can derived from sIndex which could
-    // find the soldier at that location. is it useful to have all as separate matricies?
-    matrix<int> sIndex(sizeY,sizeX); // unique indices for each soldier
-    matrix<int> sType(sizeY,sizeX); // integers which describes the type of each soldier
-    matrix<bool> occupied(sizeY,sizeX); // matrix of whether a given square is occupied
-    matrix<int> sHealth(sizeY,sizeX); // health of the unit in the given square
+    // how far a unit should be from the edge
+    // resize map when closer
+    fieldCreateDistance = 10;
+
     matrix<int> terrain(sizeY,sizeX); // terrain in a given square
+    matrix<int> elevation(sizeY,sizeX);
+    matrix<sf::Sprite> tileSprit(sizeY,sizeX);
+
+    // load terrain textures
+    vector< string > tileTexturePaths(3);
+    tileTexturePaths[0] = "textures\\tiles\\grass.png";
+    tileTexturePaths[1] = "textures\\tiles\\forest.png";
+    tileTexturePaths[2] = "textures\\tiles\\river.png";
+
+    vector< sf::Texture > tileTexture(3);
+
+    for(auto& tt: tileTexture) {
+        if (!tileTexture[tt].loadFromFile(tileTexturePaths[tt])) {
+            std::cerr << "tile texture not properly loaded" << std::endl;
+        }
+    }
 
     setDefaultValues();
 }
 
-void BattleField::updateField(vector< vector< Soldier > > & unit) {
-    // distance from any unit to render the field
-    int fieldCreateDistance = 10;
+void setDefaultValues() {
+    for(auto& rows: terrain) {
+		for(auto& cols: rows) {
+			terrain(rows,cols) = 0;
+			eleavtion(rows,cols) = 0;
+			tileSprite(rows,cols).setTexture(tileTexture[terrain(rows,cols)]);
+		}
+	}
+}
 
+void BattleField::resizeBattleField() {
+    // resize the variables and don't keep the values
+    terrain.resize(sizeY,sizeX,false);
+    elevation.resize(sizeY,sizeX,false);
+    tileSprite.resize(sizeY,sizeX,false);
+
+    // currently set everything to default, will eventually need
+    // to figure out how to add to the matricies while preserving
+    // the old state
+    setDefaultValues();
+}
+
+void BattleField::updateField(vector< vector< Soldier > > & unit) {
     // minimum and maximum solider X and Y positions
     int minX = fieldCreateDistance;
     int maxX = sizeX-fieldCreateDistance;
@@ -38,16 +71,16 @@ void BattleField::updateField(vector< vector< Soldier > > & unit) {
 
     // designate the amount to shift the battlefield by
     // non zero when soldiers are exploring new territory
-    int minShiftX;
-    int maxShiftX;
-    int minShiftY;
-    int maxShiftY;
+    int minShiftX = 0;
+    int maxShiftX = 0;
+    int minShiftY = 0;
+    int maxShiftY = 0;
 
     // first find the min and max values of Soldier X and Y positions
     // then make a battlefield that is large enough so that every soldier
     // is fieldCreateDistance from edges
-    for(int pp = 0; pp<unit.size; pp++) {
-        for(int uu = 0; uu<unit[pp].size; uu++) {
+    for(auto& pp: unit) {
+        for(auto& uu: player) {
             if (unit[pp][uu].positionX < minX)
                 minX = unit[pp][uu].positionX;
 
@@ -78,8 +111,8 @@ void BattleField::updateField(vector< vector< Soldier > > & unit) {
 
     // now that we have the shift amounts update the soldier
     // locations relative to the edges
-    for(int pp = 0; pp<unit.size; pp++) {
-        for(int uu=0; uu<unit[pp].size; uu++) {
+    for(auto& pp: unit) {
+        for(auto& uu: player) {
             unit[pp][uu].positionX += minShiftX;
             unit[pp][uu].positionY += minShiftY;
         }
@@ -93,90 +126,49 @@ void BattleField::updateField(vector< vector< Soldier > > & unit) {
 
     // resize the field to have the correct size
     resizeBattleField();
-
-    // set the field current state
-    setCurrentValues(unit,numUnit);
-
-	return;
-}
-
-void BattleField::resizeBattleField() {
-    // resize the variables and don't keep the values
-    sIndex.resize(sizeY,sizeX,false);
-    sType.resize(sizeY,sizeX,false);
-    occupied.resize(sizeY,sizeX,false);
-    sHealth.resize(sizeY,sizeX,false);
-    terrain.resize(sizeY,sizeX,false);
-}
-
-void BattleField::setDefaultValues() {
-    // initialize the values of the matricies
-	for(int yy = 0; yy < sizeY; yy++) {
-		for(int xx = 0; xx < sizeX; xx++) {
-			sIndex(yy,xx) = -1;
-			sType(yy,xx) = 0;
-			occupied(yy,xx) = false;
-			sHealth(yy,xx) = 0;
-			terrain(yy,xx) = 0;
-		}
-	}
-}
-
-void BattleField::setCurrentValues(const vector< vector< Soldier > > unit,const int numUnit) {\
-    // call setDefaultValues first to make sure all data
-    // is in default position
-    setDefaultValues();
-
-    // temporary variables to hold unit position
-    // to improve code readability
-    int unitX;
-    int unitY;
-
-    for(int pp = 0; pp<unit.size; pp++) {
-        for(int uu = 0; uu<unit[pp].size; uu++) {
-            if (!unit[pp][uu].dead) {
-                unitX = unit[pp][uu].positionX;
-                unitY = unit[pp][uu].positionY;
-
-                sIndex(unitY,unitX) = uu;
-                sType(unitY,unitX) = unit[pp][uu].type;
-                occupied(unitY,unitX) = true;
-                sHealth(unitY,unitX) = unit[pp][uu].health;
-                terrain(unitY,unitX) = 0;
-            }
-        }
-    }
 }
 
 void BattleField::printField(const int whichField) {
-    matrix<int> fieldToPrint;
+    float tileSpriteSizeX = (float) (windowSizeX) / (float) (sizeX);
+    float tileSpriteSizeY = (float) (windowSizeY) / (float) (sizeY);
 
-	switch (whichField) {
-		case 1:
-			fieldToPrint = sIndex;
-		break;
-		case 2:
-			fieldToPrint = sType;
-		break;
-		case 3:
-			fieldToPrint = matrix<int> (occupied);
-		break;
-		case 4:
-			fieldToPrint = sHealth;
-		break;
-		case 5:
-			fieldToPrint = terrain;
-		break;
-	}
+    // define the matrix of sprites that will be the battlefield
+    matrix<sf::Sprite> tileSprites(sizeY,sizeX);
+    matrix<sf::Sprite> unitSprites(sizeY,sizeX);
 
-	/*for(int jj = 0; jj < sizeY; jj++) {
-		for(int ii = 0; ii < sizeX; ii++) {
-			cout << fieldToPrint[jj][ii];
-			cout << " ";
-		}
-		cout << endl;
-	}
-    cout << endl;*/
+    // bind the grassTexture texture to the tileSprites
+    for(unsigned yy=0; yy<sizeY; yy++) {
+        for(unsigned xx=0; xx<sizeX; xx++) {
+            tileSprites(yy,xx).setTexture(grassTexture);
+            const sf::Rect<float> grassTextureSize = tileSprites(yy,xx).getGlobalBounds();
+            tileSprites(yy,xx).setScale(tileSpriteSizeX/grassTextureSize.width,tileSpriteSizeY/grassTextureSize.height);
+            tileSprites(yy,xx).setPosition(sf::Vector2f(xx*tileSpriteSizeX,yy*tileSpriteSizeY));
+            //tileSprites(yy,xx).setColor(sf::Color(255, 0, 0));
 
-    std::cout << fieldToPrint << std::endl;
+            unitSprites(yy,xx).setTexture(soldierTexture);
+            const sf::Rect<float> soldierTextureSize = unitSprites(yy,xx).getGlobalBounds();
+            unitSprites(yy,xx).setScale(tileSpriteSizeX/soldierTextureSize.width,tileSpriteSizeY/soldierTextureSize.height);
+            unitSprites(yy,xx).setPosition(sf::Vector2f(xx*tileSpriteSizeX,yy*tileSpriteSizeY));
+            //unitSprites(yy,xx).setColor(sf::Color(255, 0, 0));
+        }
+    }
+
+    while (window.isOpen())
+    {
+        sf::Event event;
+        while (window.pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+                window.close();
+        }
+
+        window.clear();
+        for(unsigned yy=0; yy<sizeY; yy++) {
+            for(unsigned xx=0; xx<sizeX; xx++) {
+                window.draw(tileSprites(yy,xx));
+                window.draw(unitSprites(yy,xx));
+            }
+        }
+        window.display();
+    }
 }
