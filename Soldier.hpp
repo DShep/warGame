@@ -14,12 +14,14 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/io.hpp>
 
+#include <SFML/Graphics.hpp>
+
 using namespace boost::numeric::ublas;
 
 class Soldier {
 	private:
 		void recMove(matrix<int> posMove, int movesLeft, const int X, const int Y);
-
+        sf::Texture unitTexture;
 	public:
 		std::string name;
         int sIndex;
@@ -35,8 +37,11 @@ class Soldier {
 		int vision;
 		bool dead;
 
-		Soldier();
-		void initSoldier(const int unitType, const int posX, const int posY, const int index);
+
+        sf::Sprite unitSprite;
+
+		Soldier(const int unitType, const int posX, const int posY, const int sIndexIn);
 		bool moveUnit(const int attPosX, const int attPosY, Soldier* allunit, const int numunit, const int fSizeX, const int fSizeY);
 		void defend(const int attacker, Soldier* unitField, const int numunit, const int fSizeX, const int fSizeY);
+		void updateSprite(const sf::RenderWindow& battleFieldWindow, const int battleFieldSizeX, const int battleFieldSizeY);
 };

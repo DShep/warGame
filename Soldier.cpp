@@ -9,7 +9,7 @@
 
 #include "Soldier.hpp"
 
-void Soldier::Soldier(const int unitType, const int posX, const int posY, const int sIndexIn){
+Soldier::Soldier(const int unitType, const int posX, const int posY, const int sIndexIn){
 	const int numUnitTypes = 8;
 	const int numStats = 8;
 	// Load in the stats file for each type of soldier
@@ -41,27 +41,36 @@ void Soldier::Soldier(const int unitType, const int posX, const int posY, const 
 	positionY = posY;
 
     // load a texture for the unit
-    vector< string > unitTexturePaths(5);
+    std::vector< std::string > unitTexturePaths(5);
     unitTexturePaths[0] = "textures\\units\\footmanTexture.png";
     unitTexturePaths[1] = "textures\\units\\pikemanTexture.png";
     unitTexturePaths[2] = "textures\\units\\lightCalveryTexture.png";
     unitTexturePaths[3] = "textures\\units\\heavyCalveryTexture.png";
     unitTexturePaths[4] = "textures\\units\\archerTexture.png";
 
-    sf::Texture unitTexture;
-
-    if (!unitTexture.loadFromFile(unitTexturePaths[unitType])) {
+    if (!unitTexture.loadFromFile(unitTexturePaths[type])) {
         std::cerr << "unit texture not properly loaded" << std::endl;
         exit(EXIT_FAILURE);
     }
 
     // create a sprite for the unit
-    sf::Sprite unitSprite;
     unitSprite.setTexture(unitTexture);
 }
 
+void Soldier::updateSprite(const sf::RenderWindow& battleFieldWindow, const int battleFieldSizeX, const int battleFieldSizeY) {
+    sf::Vector2u windowSize = battleFieldWindow.getSize();
+    unsigned windowSizeX = windowSize.x;
+    unsigned windowSizeY = windowSize.y;
+
+    float spriteSizeX = (float) (windowSizeX) / (float) (battleFieldSizeX);
+    float spriteSizeY = (float) (windowSizeY) / (float) (battleFieldSizeY);
+
+    sf::Rect<float> tileTextureSize = unitSprite.getLocalBounds();
+    unitSprite.setScale(spriteSizeX/tileTextureSize.width,spriteSizeY/tileTextureSize.height);
+    unitSprite.setPosition(sf::Vector2f(positionX*spriteSizeX,positionY*spriteSizeY));
+}
 /*
-bool Soldier::moveUnit(const vector< vector< Soldier > > unit, const int fSizeX, const int fSizeY) {
+bool Soldier::moveUnit(const std::vector< std::vector< Soldier > > unit, const int fSizeX, const int fSizeY) {
     // make a matrix to hold the places the unit can move
     // 0 is a place you can't move
     // 1 is a place you can move

@@ -44,11 +44,11 @@
 			<Add library="sfml-system" />
 			<Add directory="C:/Program Files (x86)/CodeBlocks/sfml/lib" />
 		</Linker>
-		<Unit filename="BattleField.cpp" />
-		<Unit filename="BattleField.hpp" />
+		<Unit filename="Battlefield.cpp" />
+		<Unit filename="Battlefield.hpp" />
+		<Unit filename="RunGame.cpp" />
 		<Unit filename="Soldier.cpp" />
 		<Unit filename="Soldier.hpp" />
-		<Unit filename="runGame.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
