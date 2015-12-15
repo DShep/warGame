@@ -10,6 +10,11 @@ int main() {
 	int windowSizeX = 900;
 	int windowSizeY = 900;
 
+	// mouse click variables
+	int mouseClickX = 0;
+	int mouseClickY = 0;
+	bool selectedStatus = false;
+
 	std::vector< std::vector< int > > unitType(numPlayer,std::vector< int > (numUnit));
 	std::vector< std::vector< int > > unitLocationX(numPlayer,std::vector< int > (numUnit));
 	std::vector< std::vector< int > > unitLocationY(numPlayer,std::vector< int > (numUnit));
@@ -20,7 +25,8 @@ int main() {
 
     // create the window for the game
     sf::RenderWindow battleFieldWindow(sf::VideoMode(windowSizeY, windowSizeX), "War Game");
-
+    // disable repeated events when you hold down a key
+    battleFieldWindow.setKeyRepeatEnabled(false);
     // resize the second dimension of this std::vector for every unit
     // in each player's army
     // each player can have a different number of unit
@@ -45,11 +51,58 @@ int main() {
         sf::Event event;
         while (battleFieldWindow.pollEvent(event))
         {
-            if (event.type == sf::Event::Closed)
-                battleFieldWindow.close();
+            switch (event.type) {
+                case sf::Event::Closed:
+                    battleFieldWindow.close();
+                    break;
 
-            if (event.type == sf::Event::Resized)
-                battleFieldWindow.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
+                case sf::Event::Resized:
+                    battleFieldWindow.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
+                    break;
+
+                case sf::Event::KeyPressed:
+                    if (event.key.code == sf::Keyboard::Escape)
+                    break;
+
+                case sf::Event::MouseWheelMoved:
+                        std::cout << "wheel movement: " << event.mouseWheel.delta << std::endl;
+                        std::cout << "mouse x: " << event.mouseWheel.x << std::endl;
+                        std::cout << "mouse y: " << event.mouseWheel.y << std::endl;
+                    break;
+
+                case sf::Event::MouseButtonPressed:
+                    if (event.mouseButton.button == sf::Mouse::Left)
+                    {
+                        mouseClickX = (int) ceil((float) (event.mouseButton.x) / (float) (bField.sizeX));
+                        mouseClickY = (int) ceil((float) (event.mouseButton.y) / (float) (bField.sizeY));
+                        selectedStatus = bField.selected[mouseClickY][mouseClickX];
+
+                        std::cout << "mouse x: " << event.mouseButton.x << std::endl;
+                        std::cout << "mouse y: " << event.mouseButton.y << std::endl;
+
+                        // loop through all the battlefield locations and find which square was clicked on
+                        /*for(auto& col: bField.selected) {
+                            for(auto& element: col) {
+                                element = false;
+                            }
+                        }*/
+
+                        for (int xx=0; xx<bField.sizeX; xx++){
+                            for (int yy=0; yy<bField.sizeY; yy++) {
+                                bField.selected[yy][xx] = false;
+                            }
+                        }
+
+                        bField.selected[mouseClickY][mouseClickX] = !selectedStatus;
+                    }
+                    break;
+
+                case sf::Event::MouseEntered:
+                    break;
+
+                default:
+                    break;
+            }
         }
 
         bField.updateBattlefield(unit,battleFieldWindow);

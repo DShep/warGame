@@ -33,5 +33,7 @@ class Battlefield {
         int sizeY;
         Battlefield(const int fSizeX, const int fSizeY);
         void updateBattlefield(std::vector< std::vector< Soldier > > & unit, const sf::RenderWindow& battleFieldWindow);
+
         std::vector< std::vector< sf::Sprite > > tileSprite;
+        std::vector< std::vector< bool > > selected;
 };
