@@ -7,8 +7,6 @@
  *
  */
 
-#include "Battlefield.hpp"
-
 Battlefield::Battlefield(const int fSizeX, const int fSizeY) {
     // f before a variable refers to field
     // s before a variable refers to soldier
@@ -35,14 +33,14 @@ Battlefield::Battlefield(const int fSizeX, const int fSizeY) {
     terrain.resize(sizeY);
     elevation.resize(sizeY);
     fog.resize(sizeY);
-    selected.resize(sizeY);
+    selectedMoves.resize(sizeY);
     tileSprite.resize(sizeY);
 
     for (int yy=0; yy<sizeY; yy++) {
         terrain[yy].resize(sizeX,0);
         elevation[yy].resize(sizeX,0);
         fog[yy].resize(sizeX,0);
-        selected[yy].resize(sizeX,false);
+        selectedMoves[yy].resize(sizeX,false);
         tileSprite[yy].resize(sizeX);
     }
 
@@ -124,7 +122,7 @@ void Battlefield::resizeBattlefield(std::vector< std::vector< Soldier > > & unit
         terrain.emplace(terrain.begin(),std::vector<int> (sizeX));
         elevation.emplace(elevation.begin(),std::vector<int> (sizeX));
         fog.emplace(fog.begin(),std::vector<int> (sizeX));
-        selected.emplace(selected.begin(),std::vector<bool> (sizeX));
+        selectedMoves.emplace(selectedMoves.begin(),std::vector<int> (sizeX));
         tileSprite.emplace(tileSprite.begin(),std::vector<sf::Sprite> (sizeX));
     }
 
@@ -132,7 +130,7 @@ void Battlefield::resizeBattlefield(std::vector< std::vector< Soldier > > & unit
         terrain.emplace_back(std::vector<int> (sizeX));
         elevation.emplace_back(std::vector<int> (sizeX));
         fog.emplace_back(std::vector<int> (sizeX));
-        selected.emplace_back(std::vector<bool> (sizeX));
+        selectedMoves.emplace_back(std::vector<int> (sizeX));
         tileSprite.emplace_back(std::vector<sf::Sprite> (sizeX));
     }
 
@@ -146,7 +144,7 @@ void Battlefield::resizeBattlefield(std::vector< std::vector< Soldier > > & unit
             terrain[yy].emplace(terrain[yy].begin(),0);
             elevation[yy].emplace(elevation[yy].begin(),0);
             fog[yy].emplace(fog[yy].begin(),0);
-            selected[yy].emplace(selected[yy].begin(),false);
+            selectedMoves[yy].emplace(selectedMoves[yy].begin(),false);
             tileSprite[yy].emplace(tileSprite[yy].begin());
         }
 
@@ -154,7 +152,7 @@ void Battlefield::resizeBattlefield(std::vector< std::vector< Soldier > > & unit
             terrain[yy].emplace_back(0);
             elevation[yy].emplace_back(0);
             fog[yy].emplace_back(0);
-            selected[yy].emplace_back(false);
+            selectedMoves[yy].emplace_back(false);
             tileSprite[yy].emplace_back();
         }
     }
@@ -171,7 +169,7 @@ void Battlefield::generateTerrain() {
                 terrain[row][col] = 1;
                 elevation[row][col] = 0;
                 fog[row][col] = 1;
-                selected[row][col] = false;
+                selectedMoves[row][col] = false;
                 tileSprite[row][col].setTexture(tileTexture[terrain[row][col]]);
             }
 		}
@@ -194,8 +192,10 @@ void Battlefield::updateSprite(const sf::RenderWindow& battleFieldWindow) {
             tileSprite[row][col].setScale(spriteSizeX/tileTextureSize.width, spriteSizeY/tileTextureSize.height);
             tileSprite[row][col].setPosition(sf::Vector2f(col*spriteSizeX,row*spriteSizeY));
 
-            if (selected[row][col]) {
-                tileSprite[row][col].setColor(sf::Color(255, 128, 128));
+            if (selectedMoves[row][col]) {
+                tileSprite[row][col].setColor(sf::Color(128, 128, 255));
+            } else {
+                tileSprite[row][col].setColor(sf::Color(255, 255, 255));
             }
         }
     }

@@ -11,9 +11,15 @@ int main() {
 	int windowSizeY = 900;
 
 	// mouse click variables
-	int mouseClickX = 0;
-	int mouseClickY = 0;
-	bool selectedStatus = false;
+	int mouseClickXInd = 0;
+	int mouseClickYInd = 0;
+	float mouseClickWindowFractionX = 0;
+	float mouseClickWindowFractionY = 0;
+
+	bool tileSelectedStatus = false;
+    bool unitSelectedStatus = false;
+    int selectedUnitIndex = -1;
+    int selectedUnitPlayer = -1;
 
 	std::vector< std::vector< int > > unitType(numPlayer,std::vector< int > (numUnit));
 	std::vector< std::vector< int > > unitLocationX(numPlayer,std::vector< int > (numUnit));
@@ -25,6 +31,7 @@ int main() {
 
     // create the window for the game
     sf::RenderWindow battleFieldWindow(sf::VideoMode(windowSizeY, windowSizeX), "War Game");
+    sf::Vector2u windowSize = battleFieldWindow.getSize();
     // disable repeated events when you hold down a key
     battleFieldWindow.setKeyRepeatEnabled(false);
     // resize the second dimension of this std::vector for every unit
@@ -61,7 +68,22 @@ int main() {
                     break;
 
                 case sf::Event::KeyPressed:
-                    if (event.key.code == sf::Keyboard::Escape)
+                    selectedUnitPlayer = -1;
+                    selectedUnitIndex = -1;
+                    if (event.key.code == sf::Keyboard::W) {
+                        for(int pp=0; pp<numPlayer; pp++) {
+                            for(int uu=0; uu<numUnit; uu++) {
+                                if (unit[pp][uu].selected) {
+                                    selectedUnitPlayer = pp;
+                                    selectedUnitIndex = uu;
+                                }
+                            }
+                        }
+                    }
+
+                    if (~(selectedUnitIndex == -1)) {
+                        unit[selectedUnitPlayer][selectedUnitIndex].moveUnit(unit,bField.selectedMoves,bField.sizeX,bField.sizeY);
+                    }
                     break;
 
                 case sf::Event::MouseWheelMoved:
@@ -73,27 +95,38 @@ int main() {
                 case sf::Event::MouseButtonPressed:
                     if (event.mouseButton.button == sf::Mouse::Left)
                     {
-                        mouseClickX = (int) ceil((float) (event.mouseButton.x) / (float) (bField.sizeX));
-                        mouseClickY = (int) ceil((float) (event.mouseButton.y) / (float) (bField.sizeY));
-                        selectedStatus = bField.selected[mouseClickY][mouseClickX];
+                        windowSize = battleFieldWindow.getSize();
+                        windowSizeX = windowSize.x;
+                        windowSizeY = windowSize.y;
 
-                        std::cout << "mouse x: " << event.mouseButton.x << std::endl;
-                        std::cout << "mouse y: " << event.mouseButton.y << std::endl;
+                        mouseClickWindowFractionX = (float) event.mouseButton.x / (float) windowSize.x;
+                        mouseClickWindowFractionY = (float) event.mouseButton.y / (float) windowSize.y;
+
+                        mouseClickXInd = (int) ceil(mouseClickWindowFractionX * (float) bField.sizeX) - 1;
+                        mouseClickYInd = (int) ceil(mouseClickWindowFractionY * (float) bField.sizeY) - 1;
+
+                        tileSelectedStatus = bField.selected[mouseClickYInd][mouseClickXInd];
 
                         // loop through all the battlefield locations and find which square was clicked on
-                        /*for(auto& col: bField.selected) {
+                        for(auto& col: bField.selected) {
                             for(auto& element: col) {
                                 element = false;
                             }
-                        }*/
+                        }
 
-                        for (int xx=0; xx<bField.sizeX; xx++){
-                            for (int yy=0; yy<bField.sizeY; yy++) {
-                                bField.selected[yy][xx] = false;
+                        for(auto& player: unit) {
+                            for(auto& element: player) {
+                                unitSelectedStatus = element.selected;
+
+                                if ((mouseClickXInd == element.positionX) && (mouseClickYInd == element.positionY)) {
+                                    element.selected = !unitSelectedStatus;
+                                } else {
+                                    element.selected = false;
+                                }
                             }
                         }
 
-                        bField.selected[mouseClickY][mouseClickX] = !selectedStatus;
+                        bField.selected[mouseClickYInd][mouseClickXInd] = !tileSelectedStatus;
                     }
                     break;
 

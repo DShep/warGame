@@ -35,5 +35,5 @@ class Battlefield {
         void updateBattlefield(std::vector< std::vector< Soldier > > & unit, const sf::RenderWindow& battleFieldWindow);
 
         std::vector< std::vector< sf::Sprite > > tileSprite;
-        std::vector< std::vector< bool > > selected;
+        std::vector< std::vector< int > > selectedMoves;
 };

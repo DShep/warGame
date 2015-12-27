@@ -25,6 +25,9 @@ Soldier::Soldier(const int unitType, const int posX, const int posY, const int s
 
 	statFile.close();
 
+    dead = false;
+    selected = false;
+
 	// set up the values for this object
     sIndex = sIndexIn;
 	type = unitType;
@@ -68,30 +71,53 @@ void Soldier::updateSprite(const sf::RenderWindow& battleFieldWindow, const int 
     sf::Rect<float> tileTextureSize = unitSprite.getLocalBounds();
     unitSprite.setScale(spriteSizeX/tileTextureSize.width,spriteSizeY/tileTextureSize.height);
     unitSprite.setPosition(sf::Vector2f(positionX*spriteSizeX,positionY*spriteSizeY));
+
+    if (selected) {
+        unitSprite.setColor(sf::Color(255, 128, 128));
+    } else {
+        unitSprite.setColor(sf::Color(255, 255, 255));
+    }
 }
-/*
-bool Soldier::moveUnit(const std::vector< std::vector< Soldier > > unit, const int fSizeX, const int fSizeY) {
+
+void Soldier::recMove(std::vector< std::vector< int > > & possibleMoves, int movesLeft, const int X, const int Y) {
+    for (int xx=X-1; xx<X+2; xx++) {
+        for (int yy=Y-1; yy<Y+2; yy++) {
+            if (movesLeft > 0) {
+                if (possibleMoves[yy][xx] != 0) {
+                    possibleMoves[yy][xx] = 1;
+                    movesLeft -= 1;
+                    recMove(possibleMoves,movesLeft,xx,yy);
+                    movesLeft += 1;
+                }
+            }
+        }
+    }
+}
+
+void Soldier::moveUnit(const std::vector< std::vector< Soldier > > unit, std::vector< std::vector< int > >& selectedMoves, const sf::RenderWindow& battleFieldWindow, const int battleFieldSizeX, const int battleFieldSizeY) {
     // make a matrix to hold the places the unit can move
     // 0 is a place you can't move
     // 1 is a place you can move
     // 2 is unoccupied and the algorithm will change it to 0 or 1 based
     // on unit positions
-	matrix<int> possibleMoves(fSizeY,fSizeX);
+	std::vector< std::vector< int > > possibleMoves(battleFieldSizeY,battleFieldSizeX);
 
     // initialize all possible moves to unoccupied
-    for(int yy=0; yy<fSizeY; yy++) {
-		for(int xx=0; xx<fSizeX; xx++) {
-			possibleMoves(yy,xx) = 2; // 2 stands for unoccupied
+    for(auto& col: possibleMoves) {
+        for(auto& element: col) {
+			element = 2; // 2 stands for unoccupied
 		}
 	}
 
     // get rid of all squares where another unit is
-    for(int pp=0; pp<unit.size(); pp++) {
-        for(int uu=0; uu<unit[pp].size(); uu++) {
-            if (uu != sIndex)
-                possibleMoves(unit[pp][uu].positionY,unit[pp][uu].positionX) = 0;
+    for(auto& col: possibleMoves) {
+        for(auto& element: col) {
+            possibleMoves(element.positionY,element.positionX) = 0;
         }
     }
+
+    // you can move to your own position (considered not a move)
+    possibleMoves(this.positionY,this.positionX) = 2;
 
     // test every possible path through unoccupied (possibleMoves = 2) squares
     recMove(possibleMoves,speed,positionX,positionY);
@@ -101,23 +127,20 @@ bool Soldier::moveUnit(const std::vector< std::vector< Soldier > > unit, const i
 	bool canMove = false;
 	bool didMove = false;
 
-	for(int xx=1; xx<fSizeX; xx++) {
-		for(int yy=1; yy<fSizeY; yy++) {
-			if (possibleMoves(yy,xx) == 1) {
+	for(int yy=0; yy<battleFieldSizeY; y++) {
+		for(int xx=0; xx<battleFieldSizeX; x++) {
+			if (possibleMoves[yy][xx] == 1) {
                 canMove = true;
+                selectedMoves[yy][xx] = true;
+			} else {
+                selectedMoves[yy][xx] = false;
 			}
 		}
 	}
-
-    // current interface with the user for deciding where to move
-	if (canMove) {
-	}
-
-	return didMove;
 }
 
 
-
+/*
 bool Soldier::retreatUnit(matrix<int> unitPositions,bool retreat) {
     // this whole function needs to be reworked
 	int currentSpeed;
@@ -216,20 +239,7 @@ bool Soldier::retreatUnit(matrix<int> unitPositions,bool retreat) {
 	return didMove;
 }
 
-void Soldier::recMove(matrix<int> & posMove, int movesLeft, const int X, const int Y) {
-    for (int xx=X-1; xx<X+2; xx++) {
-        for (int yy=Y-1; yy<Y+2; yy++) {
-            if (movesLeft > 0) {
-                if (posMove(yy,xx) != 0) {
-                    posMove(yy,xx) = 1;
-                    movesLeft -= 1;
-                    recMove(posMove,movesLeft,xx,yy);
-                    movesLeft += 1;
-                }
-            }
-        }
-    }
-}
+
 
 void Solider::attack() {
     // identify positions that are within range

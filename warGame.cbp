@@ -22,7 +22,6 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add option="-std=c++14" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -30,7 +29,6 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-std=c++14" />
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 			<Add directory="C:/boost_1_59_0" />
@@ -44,9 +42,9 @@
 		</Linker>
 		<Unit filename="Battlefield.cpp" />
 		<Unit filename="Battlefield.hpp" />
-		<Unit filename="RunGame.cpp" />
 		<Unit filename="Soldier.cpp" />
 		<Unit filename="Soldier.hpp" />
+		<Unit filename="runGame.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
