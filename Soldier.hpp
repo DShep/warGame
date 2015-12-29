@@ -6,10 +6,11 @@
  *  Copyright 2013 __MyCompanyName__. All rights reserved.
  *
  */
-#include <algorithm>	// std::min
+//#include <algorithm>	// std::min
 #include <string>		//string
 #include <iostream>
 #include <fstream>
+#include <sstream>
 
 #include <SFML/Graphics.hpp>
 
@@ -37,7 +38,7 @@ class Soldier {
         sf::Sprite unitSprite;
 
 		Soldier(const int unitType, const int posX, const int posY, const int sIndexIn);
-        void moveUnit(const std::vector< std::vector< Soldier > > unit, std::vector< std::vector< int > >& selected, const sf::RenderWindow& battleFieldWindow, const int battleFieldSizeX, const int battleFieldSizeY);
+        void moveUnit(const std::vector< std::vector< Soldier > > unit, std::vector< std::vector< int > >& selected, const int battleFieldSizeX, const int battleFieldSizeY);
 		void defend(const int attacker, Soldier* unitField, const int numunit, const int fSizeX, const int fSizeY);
 		void updateSprite(const sf::RenderWindow& battleFieldWindow, const int battleFieldSizeX, const int battleFieldSizeY);
 };

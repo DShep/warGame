@@ -12,18 +12,34 @@
 Soldier::Soldier(const int unitType, const int posX, const int posY, const int sIndexIn){
 	const int numUnitTypes = 8;
 	const int numStats = 8;
+
 	// Load in the stats file for each type of soldier
-	std::ifstream statFile;
-	statFile.open("unitVals.csv",std::ios::in);
-	std::string stats[numStats+1][numUnitTypes+1];
+	// honestly i haven't sat down to understand exactly
+	// how this works but it does
+    std::vector <std::vector <std::string> > stats;
+    std::ifstream statsFile("unitVals.csv");
 
-	for (int jj=0;jj<numStats+1;jj++) {
-		for (int ii=0;ii<numUnitTypes+1;ii++) {
-			getline(statFile,stats[jj][ii],',');
-		}
-	}
+    while (statsFile)
+    {
+        std::string tempReadOfLine;
+        if (!getline( statsFile, tempReadOfLine )) break;
 
-	statFile.close();
+        std::istringstream thisLine( tempReadOfLine );
+        std::vector <std::string> record;
+
+        while (thisLine)
+        {
+            std::string tempReadOfChar;
+            if (!getline( thisLine, tempReadOfChar, ',' )) break;
+            record.push_back( tempReadOfChar );
+        }
+
+        stats.push_back( record );
+    }
+
+    if (!statsFile.eof()) {
+        std::cerr << "Error reading stats file\n";
+    }
 
     dead = false;
     selected = false;
@@ -31,14 +47,14 @@ Soldier::Soldier(const int unitType, const int posX, const int posY, const int s
 	// set up the values for this object
     sIndex = sIndexIn;
 	type = unitType;
-	name = stats[0][type];
-	population = atoi(stats[2][type].c_str());
-	health = atoi(stats[3][type].c_str());
-	damage = atoi(stats[4][type].c_str());
-	range = atoi(stats[5][type].c_str());
-	speed = atoi(stats[6][type].c_str());
-	retreatSpeed = atoi(stats[7][type].c_str());
-	vision = atoi(stats[8][type].c_str());
+	name = stats[0][type+1];
+	population = atoi(stats[2][type+1].c_str());
+	health = atoi(stats[3][type+1].c_str());
+	damage = atoi(stats[4][type+1].c_str());
+	range = atoi(stats[5][type+1].c_str());
+	speed = atoi(stats[6][type+1].c_str());
+	retreatSpeed = atoi(stats[7][type+1].c_str());
+	vision = atoi(stats[8][type+1].c_str());
 
 	positionX = posX;
 	positionY = posY;
@@ -94,13 +110,23 @@ void Soldier::recMove(std::vector< std::vector< int > > & possibleMoves, int mov
     }
 }
 
-void Soldier::moveUnit(const std::vector< std::vector< Soldier > > unit, std::vector< std::vector< int > >& selectedMoves, const sf::RenderWindow& battleFieldWindow, const int battleFieldSizeX, const int battleFieldSizeY) {
+void Soldier::moveUnit(const std::vector< std::vector< Soldier > > unit, std::vector< std::vector< int > >& selectedMoves, const int battlefieldSizeX, const int battlefieldSizeY) {
     // make a matrix to hold the places the unit can move
     // 0 is a place you can't move
     // 1 is a place you can move
     // 2 is unoccupied and the algorithm will change it to 0 or 1 based
     // on unit positions
-	std::vector< std::vector< int > > possibleMoves(battleFieldSizeY,battleFieldSizeX);
+	std::vector< std::vector< int > > possibleMoves;
+
+    for(int yy=0; yy<battlefieldSizeY; yy++) {
+        possibleMoves.emplace_back(std::vector<int> (battlefieldSizeX));
+
+        for(int xx=0; xx<battlefieldSizeX; xx++) {
+            possibleMoves[yy].emplace_back(0);
+        }
+    }
+
+
 
     // initialize all possible moves to unoccupied
     for(auto& col: possibleMoves) {
@@ -110,27 +136,18 @@ void Soldier::moveUnit(const std::vector< std::vector< Soldier > > unit, std::ve
 	}
 
     // get rid of all squares where another unit is
-    for(auto& col: possibleMoves) {
-        for(auto& element: col) {
-            possibleMoves(element.positionY,element.positionX) = 0;
+    for(auto& player: unit) {
+        for(auto& element: player) {
+            possibleMoves[element.positionY][element.positionX] = 0;
         }
     }
-
-    // you can move to your own position (considered not a move)
-    possibleMoves(this.positionY,this.positionX) = 2;
 
     // test every possible path through unoccupied (possibleMoves = 2) squares
     recMove(possibleMoves,speed,positionX,positionY);
 
-    // set up two variables to keep track of whether we can move
-    // and whether we chose to move
-	bool canMove = false;
-	bool didMove = false;
-
-	for(int yy=0; yy<battleFieldSizeY; y++) {
-		for(int xx=0; xx<battleFieldSizeX; x++) {
+	for(int yy=0; yy<battlefieldSizeY; yy++) {
+		for(int xx=0; xx<battlefieldSizeX; xx++) {
 			if (possibleMoves[yy][xx] == 1) {
-                canMove = true;
                 selectedMoves[yy][xx] = true;
 			} else {
                 selectedMoves[yy][xx] = false;

@@ -16,7 +16,6 @@ int main() {
 	float mouseClickWindowFractionX = 0;
 	float mouseClickWindowFractionY = 0;
 
-	bool tileSelectedStatus = false;
     bool unitSelectedStatus = false;
     int selectedUnitIndex = -1;
     int selectedUnitPlayer = -1;
@@ -30,10 +29,10 @@ int main() {
 	std::vector< std::vector< Soldier > > unit(numPlayer);
 
     // create the window for the game
-    sf::RenderWindow battleFieldWindow(sf::VideoMode(windowSizeY, windowSizeX), "War Game");
-    sf::Vector2u windowSize = battleFieldWindow.getSize();
+    sf::RenderWindow battlefieldWindow(sf::VideoMode(windowSizeY, windowSizeX), "War Game");
+    sf::Vector2u windowSize = battlefieldWindow.getSize();
     // disable repeated events when you hold down a key
-    battleFieldWindow.setKeyRepeatEnabled(false);
+    battlefieldWindow.setKeyRepeatEnabled(false);
     // resize the second dimension of this std::vector for every unit
     // in each player's army
     // each player can have a different number of unit
@@ -53,18 +52,18 @@ int main() {
 	Battlefield bField(fSizeX,fSizeY);
 
     /////////////// GRAPHICS!!! //////////////
-    while (battleFieldWindow.isOpen())
+    while (battlefieldWindow.isOpen())
     {
         sf::Event event;
-        while (battleFieldWindow.pollEvent(event))
+        while (battlefieldWindow.pollEvent(event))
         {
             switch (event.type) {
                 case sf::Event::Closed:
-                    battleFieldWindow.close();
+                    battlefieldWindow.close();
                     break;
 
                 case sf::Event::Resized:
-                    battleFieldWindow.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
+                    battlefieldWindow.setView(sf::View(sf::FloatRect(0, 0, event.size.width, event.size.height)));
                     break;
 
                 case sf::Event::KeyPressed:
@@ -88,14 +87,12 @@ int main() {
 
                 case sf::Event::MouseWheelMoved:
                         std::cout << "wheel movement: " << event.mouseWheel.delta << std::endl;
-                        std::cout << "mouse x: " << event.mouseWheel.x << std::endl;
-                        std::cout << "mouse y: " << event.mouseWheel.y << std::endl;
                     break;
 
                 case sf::Event::MouseButtonPressed:
                     if (event.mouseButton.button == sf::Mouse::Left)
                     {
-                        windowSize = battleFieldWindow.getSize();
+                        windowSize = battlefieldWindow.getSize();
                         windowSizeX = windowSize.x;
                         windowSizeY = windowSize.y;
 
@@ -105,12 +102,14 @@ int main() {
                         mouseClickXInd = (int) ceil(mouseClickWindowFractionX * (float) bField.sizeX) - 1;
                         mouseClickYInd = (int) ceil(mouseClickWindowFractionY * (float) bField.sizeY) - 1;
 
-                        tileSelectedStatus = bField.selected[mouseClickYInd][mouseClickXInd];
-
-                        // loop through all the battlefield locations and find which square was clicked on
-                        for(auto& col: bField.selected) {
-                            for(auto& element: col) {
-                                element = false;
+                        if (bField.selectedMoves[mouseClickYInd][mouseClickXInd]) {
+                            for(auto& player: unit) {
+                                for(auto& element: player) {
+                                    if (element.selected) {
+                                        element.positionX = mouseClickXInd;
+                                        element.positionY = mouseClickYInd;
+                                    }
+                                }
                             }
                         }
 
@@ -126,7 +125,11 @@ int main() {
                             }
                         }
 
-                        bField.selected[mouseClickYInd][mouseClickXInd] = !tileSelectedStatus;
+                        for(auto& col: bField.selectedMoves) {
+                            for(auto& element: col) {
+                                element = false;
+                            }
+                        }
                     }
                     break;
 
@@ -138,24 +141,24 @@ int main() {
             }
         }
 
-        bField.updateBattlefield(unit,battleFieldWindow);
+        bField.updateBattlefield(unit,battlefieldWindow);
 
         ////////////////// CLEAR DISPLAY CYCLE /////////////////
-        battleFieldWindow.clear();
+        battlefieldWindow.clear();
 
         for(auto& row: bField.tileSprite) {
             for(auto& element: row) {
-                battleFieldWindow.draw(element);
+                battlefieldWindow.draw(element);
             }
         }
 
         for(auto& player: unit) {
             for(auto& element: player) {
-                element.updateSprite(battleFieldWindow,bField.sizeX,bField.sizeY);
-                battleFieldWindow.draw(element.unitSprite);
+                element.updateSprite(battlefieldWindow,bField.sizeX,bField.sizeY);
+                battlefieldWindow.draw(element.unitSprite);
             }
         }
-        battleFieldWindow.display();
+        battlefieldWindow.display();
     }
 
     return 0;
